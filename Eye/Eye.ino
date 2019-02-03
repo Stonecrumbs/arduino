@@ -1,3 +1,9 @@
+ /* 
+This program draws an eye on MAX7219 which pupile can be controlled by moving a joystick
+
+*/
+
+
 //We always have to include the library
 #include "LedControl.h"
 #include "math.h"
@@ -9,6 +15,11 @@
  pin 11 is connected to the CLK 
  pin 10 is connected to LOAD 
  We have only a single MAX72XX.
+
+This is for the Joystick
+ A0 connected to vrX
+ A1 connected to vrY
+ pin2 connected to SW (NOT USED IN THIS PROGRAM) 
  */
 LedControl lc=LedControl(12,11,10,1);
 
