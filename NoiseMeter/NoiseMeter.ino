@@ -40,10 +40,12 @@ Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 #define ORE_2_A  9  //output Rotary Encoder 1 pin A (DT)
 #define ORE_2_B  10 //output Rotary Encoder 1 pin B (CLK)
  
-int aVol;
+int aVol, aVolCount = 0, aVolAvg;
+float aVolAcum = 0;
 
 static const int PROGMEM  analogPin = A0,// A0 on the sensor
-                          eyesVelocity = 160; 
+                          eyesVelocity = 160,
+                          avgCountVelocity = 1000; 
               
 static const uint8_t PROGMEM
   init_bmp []=
@@ -485,7 +487,7 @@ void drawBar(){
   int b2 = (int)((RE_2_Percent*16.0)/100.0);   
   
   // Meter
-  int m1 = (int)((aVol*16.0)/1024.0);
+  int m1 = (int)((aVolAvg*16.0)/1024.0);
   
   for (int i=0;i<8;i++){
     if (i<b1) {
@@ -652,7 +654,7 @@ void CheckButtonPressed(){
 void checkColor(){
   
     // analog read percent
-  int aVol_Percent = (int)((aVol*100.0)/1024.0);
+  int aVol_Percent = (int)((aVolAvg*100.0)/1024.0);
 
   if (aVol_Percent<RE_1_Percent) eyesColor = 3; //Green
   else if (aVol_Percent>RE_2_Percent) eyesColor = 1; //Red
@@ -663,8 +665,26 @@ void loop() {
 
   changeCode = 0;
   
-  //Read the audio analog voltage value 
+  //Read the audio analog voltage value and calculate average
   aVol = analogRead(analogPin);
+  aVolAcum = (aVolAcum)+(aVol);
+  aVolCount ++;
+  if (aVolCount == avgCountVelocity) {
+     aVolAvg = (aVolAcum)/(aVolCount);
+     /*
+     Serial.print(aVol);
+     Serial.print(' ');
+     Serial.print(aVolAcum);
+     Serial.print(' ');
+     Serial.print(aVolCount);
+     Serial.print(' ');
+     Serial.println(aVolAvg);
+     */
+     aVolCount = 0;
+     aVolAcum = 0;
+  }
+   
+  
   checkColor();
 
   CheckButtonPressed();
