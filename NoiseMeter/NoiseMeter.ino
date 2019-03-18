@@ -1,5 +1,5 @@
 
-/*  Program: NoiseMeter V0.9
+/*  Program: NoiseMeter V0.10
  *   
  * 
  *   
@@ -27,6 +27,8 @@
  *       
  *  v0.9 Now by clicking ER1 the actual analog read from the sound sensor is shown.
  *       This will help to check, test and troubleshoot the noise problem on readings.
+ *       
+ *  v0.10 Exponetial filtering is not as stable as we want. We try Accumulatice average
  *  
  *  Considerations: Min analog voltage read is 0 and max is 1024.
  *  
@@ -37,6 +39,8 @@
 #include "Adafruit_LEDBackpack.h"
 #include "Filter.h"
 
+ExponentialFilter<float> filteredAnalogRead(20, 0); 
+  
 Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();
 Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 
@@ -47,7 +51,8 @@ Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 #define ORE_2_B  10 //output Rotary Encoder 1 pin B (CLK)
 #define ORE_2_SW 11  //Rotary Encoder 2 button.      (SW)
  
-float aVolRead, aVolAvg, aVolMaxVal=150;
+int aVolRead=0, aVolAvg=0, aVolMaxVal=400, aVolCount=0, aVolSum=0;
+
   
 static const int PROGMEM  analogPin = A0,// A0 on the sensor
                           eyesVelocity = 160; 
@@ -500,11 +505,11 @@ void checkColor(float volume){
 void drawBar(){
 
   // boundaries
-  int b1 = (int)((RE_1_Percent*16.0)/100.0);
-  int b2 = (int)((RE_2_Percent*16.0)/100.0);   
+  int b1 = (int)((RE_1_Percent*15.0)/100.0);
+  int b2 = (int)((RE_2_Percent*15.0)/100.0);   
   
   // Meter
-  int m1 = (int)((aVolAvg*16.0)/aVolMaxVal);
+  int m1 = (int)((aVolAvg*15.0)/aVolMaxVal);
   
   for (int i=0;i<8;i++){
     if (i<b1) {
@@ -734,13 +739,18 @@ void loop() {
 
   changeCode = 0;
   
-  //Read the audio analog voltage value 
-  
-  ExponentialFilter<float> filteredAnalogRead(20, 0);
-
+  //Read the audio analog voltage value
   aVolRead = analogRead(analogPin);
-  filteredAnalogRead.Filter(aVolRead);
-  aVolAvg = filteredAnalogRead.Current();
+  if (aVolCount < 64){
+    aVolCount++;
+    aVolSum = aVolSum + aVolRead;
+  } else if (aVolCount == 64){
+    aVolAvg = aVolSum / 64;
+    aVolCount = 65;
+  }
+  aVolAvg = (((aVolAvg<<6)-aVolAvg)+aVolRead)>>6;
+  
+  //Serial.println(aVolAvg);
     
   checkColor(aVolAvg);
 
