@@ -1,5 +1,5 @@
 
-/*  Program: NoiseMeter V0.1
+/*  Program: NoiseMeter V0.9
  *   
  * 
  *   
@@ -24,6 +24,9 @@
  *       
  *  v0.8 Exponetial filtring on analog reading to stabilize values. Too much noise
  *       detected. Filter.h added.
+ *       
+ *  v0.9 Now by clicking ER1 the actual analog read from the sound sensor is shown.
+ *       This will help to check, test and troubleshoot the noise problem on readings.
  *  
  *  Considerations: Min analog voltage read is 0 and max is 1024.
  *  
@@ -42,6 +45,7 @@ Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 #define ORE_1_SW 8  //Rotary Encoder 1 button.      (SW)
 #define ORE_2_A  9  //output Rotary Encoder 1 pin A (DT)
 #define ORE_2_B  10 //output Rotary Encoder 1 pin B (CLK)
+#define ORE_2_SW 11  //Rotary Encoder 2 button.      (SW)
  
 float aVolRead, aVolAvg, aVolMaxVal=150;
   
@@ -127,8 +131,10 @@ void setup() {
   pinMode (ORE_1_SW, INPUT);
   pinMode (ORE_2_A, INPUT);
   pinMode (ORE_2_B, INPUT);
+  pinMode (ORE_2_SW, INPUT);
   
   digitalWrite(ORE_1_SW, HIGH);
+  digitalWrite(ORE_2_SW, HIGH);
   
   Serial.begin(9600);
   
@@ -492,7 +498,7 @@ void checkColor(float volume){
 }
 
 void drawBar(){
-x
+
   // boundaries
   int b1 = (int)((RE_1_Percent*16.0)/100.0);
   int b2 = (int)((RE_2_Percent*16.0)/100.0);   
@@ -585,6 +591,57 @@ void drawNumbers(){
 
 }
 
+void drawRead(float num){
+  //d1 thousands
+  int d1 = num/1000.0;
+  if      (d1 == 0)  zero(1,2);
+  else if (d1 == 1)   one(1,2);
+  else if (d1 == 2)   two(1,2);
+  else if (d1 == 3) three(1,2);
+  else if (d1 == 4)  four(1,2);
+  else if (d1 == 5)  five(1,2);
+  else if (d1 == 6)   six(1,2);
+  else if (d1 == 7) seven(1,2);
+  else if (d1 == 8) eight(1,2);
+  else if (d1 == 9)  nine(1,2);
+  //d2 hundreds
+  int d2 = (num-(d1*1000.0))/100.0;
+  if      (d2 == 0)  zero(5,2);
+  else if (d2 == 1)   one(5,2);
+  else if (d2 == 2)   two(5,2);
+  else if (d2 == 3) three(5,2);
+  else if (d2 == 4)  four(5,2);
+  else if (d2 == 5)  five(5,2);
+  else if (d2 == 6)   six(5,2);
+  else if (d2 == 7) seven(5,2);
+  else if (d2 == 8) eight(5,2);
+  else if (d2 == 9)  nine(5,2);  
+  //d3 tens
+  int d3 = (num-(d1*1000.0)-(d2*100.0))/10.0;
+  if      (d3 == 0)  zero(1,1);
+  else if (d3 == 1)   one(1,1);
+  else if (d3 == 2)   two(1,1);
+  else if (d3 == 3) three(1,1);
+  else if (d3 == 4)  four(1,1);
+  else if (d3 == 5)  five(1,1);
+  else if (d3 == 6)   six(1,1);
+  else if (d3 == 7) seven(1,1);
+  else if (d3 == 8) eight(1,1);
+  else if (d3 == 9)  nine(1,1);
+  //d4 ones
+  int d4 = num-(d1*1000.0)-(d2*100.0)-(d3*10.0);
+  if      (d4 == 0)  zero(5,1);
+  else if (d4 == 1)   one(5,1);
+  else if (d4 == 2)   two(5,1);
+  else if (d4 == 3) three(5,1);
+  else if (d4 == 4)  four(5,1);
+  else if (d4 == 5)  five(5,1);
+  else if (d4 == 6)   six(5,1);
+  else if (d4 == 7) seven(5,1);
+  else if (d4 == 8) eight(5,1);
+  else if (d4 == 9)  nine(5,1);
+}
+
 void drawInterface(){
   matrix.clear();
   matrix2.clear();
@@ -658,6 +715,16 @@ void CheckButtonPressed(){
     if (interfaceToggle == 0) interfaceToggle = 1; 
     else  if (interfaceToggle == 1) interfaceToggle = 0;
   
+  }
+
+  if (digitalRead(ORE_2_SW) == LOW){  
+    matrix.clear();
+    matrix2.clear();
+  
+    drawRead(aVolAvg);
+  
+    matrix.writeDisplay();   
+    matrix2.writeDisplay();   
   }
   
 }
