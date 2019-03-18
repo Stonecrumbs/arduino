@@ -11,6 +11,8 @@
  *  
  *  v0.1 Interface trough 8x8 bicolor matrix implementation
  *  
+ *  v0.2 implementng Eyes movement and effects
+ *  
  *  Considerations: Min analog voltage read is 0 and max is 1024.
  *  
  */
@@ -31,7 +33,8 @@ Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 int aVol;
 
 static const int PROGMEM  analogPin = A0,// A0 on the sensor
-                          interfaceDuration = 1000; 
+                          interfaceDuration = 1000,
+                          eyesVelocity = 160; 
               
 static const uint8_t PROGMEM
   init_bmp []=
@@ -42,7 +45,34 @@ static const uint8_t PROGMEM
      B11111111,
      B11111111,
      B01111110,
-     B00011000};
+     B00011000},
+  blink_it1_bmp []=
+    {B00000000,
+     B00011000,
+     B01111110,
+     B11111111,
+     B11111111,
+     B11111111,
+     B01111110,
+     B00011000},
+  blink_it2_bmp []=
+    {B00000000,
+     B00000000,
+     B00111100,
+     B11111111,
+     B11111111,
+     B01111110,
+     B00000000,
+     B00000000},
+  blink_it3_bmp []=
+    {B00000000,
+     B00000000,
+     B00000000,
+     B11111111,
+     B11111111,
+     B00000000,
+     B00000000,
+     B00000000};
 
 int RE_1_Percent = 20; //Rotary Encoder 1 Percentage
 int RE_1_Pos;
@@ -53,6 +83,18 @@ int RE_2_Percent = 80; //Rotary Encoder 2 Percentage
 int RE_2_Pos;
 int ORE_2_A_State;
 int ORE_2_A_LastState;
+
+
+boolean isPupileMoving = false;
+int pupilePosition = 3;
+int movePupileTo = 3;
+int finalPupilePosition;
+
+boolean isBlinking = false;
+int blinkIteration = 0;
+
+int eyesFrame;
+
 
 int changeCode; /* This int will track what happened on each iteration 
                    0- Nothing happened
@@ -87,15 +129,17 @@ void setup() {
   matrix.begin(0x70);  // pass in the address
   matrix2.begin(0x71);  // pass in the address
   
+  initEye(); 
+  
+}
 
+void initEye(){
   matrix.clear();
   matrix.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
   matrix2.clear();
   matrix2.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
   
-  matrix.writeDisplay();   
-  matrix2.writeDisplay();   
-  
+  clearPupiles(pupilePosition);
 }
 
 void Print(){
@@ -175,23 +219,6 @@ void CheckButtonPressed(){
     RE_1_Percent = 20; 
     RE_2_Percent = 80; 
     Print();
-  }
-}
-
-void drawBar(){
-
-  int b1 = (int)((RE_1_Percent*16)/100);
-  int b2 = (int)((RE_2_Percent*16)/100);   
-
-  for (int i=0;i<8;i++){
-    if (i<b1) matrix2.drawPixel(i, 0, LED_GREEN);
-    else if (i>b2) matrix2.drawPixel(i, 0, LED_RED);
-         else matrix2.drawPixel(i, 0, LED_YELLOW);    
-  }
-  for (int i=8;i<16;i++){
-    if (i<b1) matrix.drawPixel(i-8, 0, LED_GREEN);
-    else if (i>b2) matrix.drawPixel(i-8, 0, LED_RED);
-         else matrix.drawPixel(i-8, 0, LED_YELLOW);    
   }
 }
 
@@ -467,6 +494,23 @@ void nine(int iniX, int mat){
   }    
 }
 
+void drawBar(){
+
+  int b1 = (int)((RE_1_Percent*16)/100);
+  int b2 = (int)((RE_2_Percent*16)/100);   
+
+  for (int i=0;i<8;i++){
+    if (i<b1) matrix2.drawPixel(i, 0, LED_GREEN);
+    else if (i>b2) matrix2.drawPixel(i, 0, LED_RED);
+         else matrix2.drawPixel(i, 0, LED_YELLOW);    
+  }
+  for (int i=8;i<16;i++){
+    if (i<b1) matrix.drawPixel(i-8, 0, LED_GREEN);
+    else if (i>b2) matrix.drawPixel(i-8, 0, LED_RED);
+         else matrix.drawPixel(i-8, 0, LED_YELLOW);    
+  }
+}
+
 void drawNumbers(){
   //d1 first digit RE_1_Percent
   int d1 = RE_1_Percent/10;
@@ -531,6 +575,53 @@ void drawInterface(){
   matrix2.writeDisplay();   
 }
 
+
+void paintPupiles(int pX){
+  matrix.drawPixel(pX, 3, LED_GREEN);
+  matrix.drawPixel(pX+1, 3, LED_GREEN);
+  matrix.drawPixel(pX, 4, LED_GREEN);
+  matrix.drawPixel(pX+1, 4, LED_GREEN);
+  //matrix.writeDisplay();
+  matrix2.drawPixel(pX, 3, LED_GREEN);
+  matrix2.drawPixel(pX+1, 3, LED_GREEN);
+  matrix2.drawPixel(pX, 4, LED_GREEN);
+  matrix2.drawPixel(pX+1, 4, LED_GREEN);
+  //matrix2.writeDisplay();
+}
+
+void clearPupiles(int pX){
+  matrix.drawPixel(pX, 3, LOW);
+  matrix.drawPixel(pX+1, 3, LOW);
+  matrix.drawPixel(pX, 4, LOW);
+  matrix.drawPixel(pX+1, 4, LOW);
+  //matrix.writeDisplay();
+  matrix2.drawPixel(pX, 3, LOW);
+  matrix2.drawPixel(pX+1, 3, LOW);
+  matrix2.drawPixel(pX, 4, LOW);
+  matrix2.drawPixel(pX+1, 4, LOW);
+  //matrix2.writeDisplay();   
+}
+
+void clearRows(int row){
+  matrix.drawPixel(0, row, LOW);
+  matrix.drawPixel(1, row, LOW);
+  matrix.drawPixel(2, row, LOW);
+  matrix.drawPixel(3, row, LOW);
+  matrix.drawPixel(4, row, LOW);
+  matrix.drawPixel(5, row, LOW);
+  matrix.drawPixel(6, row, LOW);
+  matrix.drawPixel(7, row, LOW);
+  matrix2.drawPixel(0, row, LOW);
+  matrix2.drawPixel(1, row, LOW);
+  matrix2.drawPixel(2, row, LOW);
+  matrix2.drawPixel(3, row, LOW);
+  matrix2.drawPixel(4, row, LOW);
+  matrix2.drawPixel(5, row, LOW);
+  matrix2.drawPixel(6, row, LOW);
+  matrix2.drawPixel(7, row, LOW);
+}
+    
+
 void loop() {
 
   changeCode = 0;
@@ -548,29 +639,96 @@ void loop() {
 
     Serial.print(" Pos 1 = ");Serial.print(RE_1_Pos);
     Serial.print(" Pos 2 = ");Serial.println(RE_2_Pos);
-
-    // Interfaz de control a traves de matrices de led
     
-  } else {
-
-    // Pintar y animar ojos.
-
   }
-
   if (interfaceActive > 0) {
     drawInterface();
 
-    interfaceActive = interfaceActive - 1;
+    interfaceActive --;
     
-  }else{
- 
-  matrix.clear();
-  matrix.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
-  matrix2.clear();
-  matrix2.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);   
-  matrix.writeDisplay();   
-  matrix2.writeDisplay();   
+  } else {
+
+    if (eyesFrame == 0){
+      
+      eyesFrame = eyesVelocity;
+      
+      // Moving pupilles
+      if ((random(0,60) == 1)&&!isPupileMoving){ // Calculate probability of moving puiles when resting.
+        finalPupilePosition = random(1,6); // Final destination for the pupile.
+        //Serial.println(movePupileTo);
+        isPupileMoving = true;
+      } else if (isPupileMoving) {    
+        if ( pupilePosition < finalPupilePosition ){
+          movePupileTo = pupilePosition+1;
+        } else if ( pupilePosition > finalPupilePosition ){
+          movePupileTo = pupilePosition-1; 
+        } else { // Last iteration for moving pupiles
+          isPupileMoving = false;
+        }   
+        paintPupiles(pupilePosition);
+        clearPupiles(movePupileTo);
+        pupilePosition = movePupileTo;
+        
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();   
+      
+      }
+    
+      // Blink
+      if ((random(0,90) == 1)&&!isBlinking){ // Calculate probability of moving pupiles when resting.
+        isBlinking = true;
+        blinkIteration = 1;
+        
+      } else if (isBlinking) {    
+        if (blinkIteration == 0) {
+          isBlinking = false;
+          matrix.clear();
+          matrix2.clear();
+          matrix.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
+          matrix2.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
+          clearPupiles(movePupileTo);
+          
+        } else if ((blinkIteration == 1) || (blinkIteration == 5)){
+          matrix.clear();
+          matrix2.clear();
+          matrix.drawBitmap(0, 0, blink_it1_bmp, 8, 8, LED_GREEN);
+          matrix2.drawBitmap(0, 0, blink_it1_bmp, 8, 8, LED_GREEN);
+          clearPupiles(movePupileTo);
+          if (blinkIteration == 1){ 
+            blinkIteration = 2;
+          } else {    
+            blinkIteration = 0;
+          }
+          
+        } else if ((blinkIteration == 2) || (blinkIteration == 4)){
+          matrix.clear();
+          matrix2.clear();
+          matrix.drawBitmap(0, 0, blink_it2_bmp, 8, 8, LED_GREEN);
+          matrix2.drawBitmap(0, 0, blink_it2_bmp, 8, 8, LED_GREEN);
+          clearPupiles(movePupileTo);
+          if (blinkIteration == 2){ 
+            blinkIteration = 3;
+          } else {        
+            blinkIteration = 5;
+          }
+          
+        } else if (blinkIteration == 3){
+          matrix.clear();
+          matrix2.clear();
+          matrix.drawBitmap(0, 0, blink_it3_bmp, 8, 8, LED_GREEN);
+          matrix2.drawBitmap(0, 0, blink_it3_bmp, 8, 8, LED_GREEN);
+          clearPupiles(movePupileTo);
+          blinkIteration = 4;
+        }
+  
+      matrix.writeDisplay();  
+      matrix2.writeDisplay();   
+      }
+    } else {
+      eyesFrame --;
+    }
   }
+
 
   //delay(40); // 1000ms/24 => aprox40 ms/frame
   
