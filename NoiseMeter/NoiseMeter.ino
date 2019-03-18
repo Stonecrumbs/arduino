@@ -28,24 +28,30 @@
  */
 
 #include <Wire.h>
+#include "Filter.h"
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
 
 Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();
 Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 
-#define ORE_1_A  6  //output Rotary Encoder 1 0     (DT) 
+#define ORE_1_A  6  //output Rotary Encoder 1 pin A (DT) 
 #define ORE_1_B  7  //output Rotary Encoder 1 pin B (CLK)
 #define ORE_1_SW 8  //Rotary Encoder 1 button.      (SW)
 #define ORE_2_A  9  //output Rotary Encoder 1 pin A (DT)
 #define ORE_2_B  10 //output Rotary Encoder 1 pin B (CLK)
+// Sound Sensor GATE to pin2
+// Sound Sensor ENVELOPE to A0
+// 8x8 SDA Both to pin20
+// 8X8 SCL Both to pin21
  
-int aVol, aVolCount = 0, aVolAvg;
-float aVolAcum = 0;
+float aVol=0,aVolRead, aVolCount = 0, aVolAvg=0, aVolAcum = 0;
 
 static const int PROGMEM  analogPin = A0,// A0 on the sensor
                           eyesVelocity = 160,
-                          avgCountVelocity = 1000; 
+                          avgCountVelocity = 10000,
+                          analogReadMinVal =50; // This will be the analog read for quiet sound. Hundred more is the loudest. 
+                                                 // the % is calculated with these values. 
               
 static const uint8_t PROGMEM
   init_bmp []=
@@ -651,41 +657,68 @@ void CheckButtonPressed(){
   
 }
 
-void checkColor(){
-  
+void checkColor(int volumeAvg){
+  /*
     // analog read percent
-  int aVol_Percent = (int)((aVolAvg*100.0)/1024.0);
+  int aVol_Percent = (int)((volumeAvg*100.0)/1024.0);
 
   if (aVol_Percent<RE_1_Percent) eyesColor = 3; //Green
   else if (aVol_Percent>RE_2_Percent) eyesColor = 1; //Red
+  else  eyesColor = 2; //Yellow
+  */
+  
+  if (volumeAvg<RE_1_Percent) eyesColor = 3; //Green
+  else if (volumeAvg>RE_2_Percent) eyesColor = 1; //Red
   else  eyesColor = 2; //Yellow
 }
 
 void loop() {
 
   changeCode = 0;
-  
+  // the <float> makes a filter for float numbers
+  // 20 is the weight (20 => 20%)
+  // 0 is the initial value of the filter
+  ExponentialFilter<float> filteredAnalogRead(20, 0);
+
+    float aVolRead = analogRead(analogPin);
+    filteredAnalogRead.Filter(aVolRead);
+    float aVolAvg = filteredAnalogRead.Current();
+    
+    aVolAcum = (aVolAcum)+(aVolAvg);
+    
+    aVolCount ++;
+    if (aVolCount == avgCountVelocity) {
+      aVol = (aVolAcum)/(aVolCount);
+      aVolCount = 0;
+      aVolAcum = 0;
+      Serial.println((int)aVol);
+    }
+    /*
   //Read the audio analog voltage value and calculate average
-  aVol = analogRead(analogPin);
-  aVolAcum = (aVolAcum)+(aVol);
-  aVolCount ++;
-  if (aVolCount == avgCountVelocity) {
-     aVolAvg = (aVolAcum)/(aVolCount);
-     /*
+     aVolRead = analogRead(analogPin)/2;
+   
+     if (aVol<aVolRead) aVol++;
+     else if (aVol>aVolRead) aVol--;
+   
+     aVolAcum = (aVolAcum)+(aVol);
+     aVolCount ++;
+     if (aVolCount == avgCountVelocity) {
+        aVolAvg = (aVolAcum)/(aVolCount);
+     
      Serial.print(aVol);
      Serial.print(' ');
      Serial.print(aVolAcum);
      Serial.print(' ');
      Serial.print(aVolCount);
      Serial.print(' ');
-     Serial.println(aVolAvg);
-     */
+     Serial.println((int)aVolAvg);
+     
      aVolCount = 0;
      aVolAcum = 0;
   }
-   
+   */
   
-  checkColor();
+  checkColor(aVolAvg);
 
   CheckButtonPressed();
 
