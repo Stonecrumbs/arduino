@@ -14,7 +14,8 @@
  *  
  *  v0.3 Implementng Audiometer bar
  *  
- *  v0.4 Implementng analog value average
+ *  v0.4 Interface controller is no longer active for a period of time. It will be toggled 
+ *       in and out by using ER buttons.
  *  
  *  Considerations: Min analog voltage read is 0 and max is 1024.
  *  
@@ -22,8 +23,7 @@
 
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <QueueArray.h>
-#include <Adafruit_LEDBackpack.h>
+#include "Adafruit_LEDBackpack.h"
 
 Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();
 Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
@@ -37,9 +37,7 @@ Adafruit_BicolorMatrix matrix2 = Adafruit_BicolorMatrix();
 int aVol;
 
 static const int PROGMEM  analogPin = A0,// A0 on the sensor
-                          interfaceDuration = 1000,
-                          eyesVelocity = 160,
-                          aVolAvgNumSamples = 1000; 
+                          eyesVelocity = 160; 
               
 static const uint8_t PROGMEM
   init_bmp []=
@@ -108,14 +106,9 @@ int changeCode; /* This int will track what happened on each iteration
                    3- RE2 has been rotated clockwise. 
                    4- RE2 has been rotated counter clockwise.
                 */
-int interfaceActive = 0; /* Indicates the number of milliseconds the interface will be actve. 
-                            Once an action occured this variable is set to the munber of milliseconds 
-                            we want the interface to be active. And will decrease every 
-                            iteration until it reaches 0 and the eyes are shown up again. 
-                          */
-
-QueueArray <int> aVolAvgQueue;
-int aVolAvgSumatory = 0;
+                
+int interfaceToggle = 0; // 0 means interface off, 1 means on
+                          
 
 void setup() {
   pinMode (ORE_1_A, INPUT);
@@ -219,17 +212,6 @@ void CalculateREPositions(){
   ORE_2_A_LastState = ORE_2_A_State;
 
 }  //calculateREPositions
-
-
-void CheckButtonPressed(){
-  if (digitalRead(ORE_1_SW) == LOW){
-    // initialise boundaries;
-    RE_1_Percent = 20; 
-    RE_2_Percent = 80; 
-    Print();
-  }
-}
-
 
 void zero(int iniX, int mat){
   if (mat == 1){
@@ -523,55 +505,25 @@ void drawBar(){
     else {
       matrix2.drawPixel(i, 0, LED_YELLOW);
       if (i<m1) matrix2.drawPixel(i, 1, LED_YELLOW);  
-    }
-           
+    }           
   }
+  
   for (int i=8;i<16;i++){
     if (i<b1) {
       matrix.drawPixel(i-8, 0, LED_GREEN);
-      if (i<m1) matrix.drawPixel(i, 1, LED_GREEN); 
+      if (i<m1) matrix.drawPixel(i-8, 1, LED_GREEN); 
     }
     else if (i>b2){
       matrix.drawPixel(i-8, 0, LED_RED);
-      if (i<m1) matrix.drawPixel(i, 1, LED_RED);  
+      if (i<m1) matrix.drawPixel(i-8, 1, LED_RED);  
     }
     else {
       matrix.drawPixel(i-8, 0, LED_YELLOW);   
-      if (i<m1) matrix.drawPixel(i, 1, LED_YELLOW);  
+      if (i<m1) matrix.drawPixel(i-8, 1, LED_YELLOW);  
     }
   }
-}
-
-void drawAVolAvg(){
-  int a1 = (int)(((aVolAvgSumatory/aVolAvgNumSamples)*16)/1024);
-
-  for (int i=0;i<8;i++){
-    if (i<a1) {
-      matrix2.drawPixel(i, 1, LED_GREEN);
-    }
-    else if (i>a1) {
-      matrix2.drawPixel(i, 1, LED_RED);
-    }
-    else {
-      matrix2.drawPixel(i, 1, LED_YELLOW); 
-    }
-           
-  }
-  for (int i=8;i<16;i++){
-    if (i<a1) {
-      matrix.drawPixel(i-8, 1, LED_GREEN);
-    }
-    else if (i>a1){
-      matrix.drawPixel(i-8, 1, LED_RED);
-    }
-    else {
-      matrix.drawPixel(i-8, 1, LED_YELLOW);   
-    }
-  }
-}
-
-
   
+}
 
 void drawNumbers(){
   //d1 first digit RE_1_Percent
@@ -625,20 +577,6 @@ void drawNumbers(){
   else if (d2 == 9)  nine(5,1);
 
 }
-/*
-void drawMeter(){
-  
-  for (int i=0;i<8;i++){
-    if (i<b1) matrix2.drawPixel(i, 1, LED_GREEN);
-    else if (i>b2) matrix2.drawPixel(i, 1, LED_RED);
-         else matrix2.drawPixel(i, 1, LED_YELLOW);    
-  }
-  for (int i=8;i<16;i++){
-    if (i<b1) matrix.drawPixel(i-8, 1, LED_GREEN);
-    else if (i>b2) matrix.drawPixel(i-8, 1, LED_RED);
-         else matrix.drawPixel(i-8, 1, LED_YELLOW);    
-  }
-}*/
 
 void drawInterface(){
   matrix.clear();
@@ -698,6 +636,25 @@ void clearRows(int row){
   matrix2.drawPixel(7, row, LOW);
 }
     
+void CheckButtonPressed(){
+  
+  if (digitalRead(ORE_1_SW) == LOW){
+    /*
+    // initialise boundaries;
+    RE_1_Percent = 20; 
+    RE_2_Percent = 80; 
+    Print();
+    */
+    
+    while (digitalRead(ORE_1_SW) == LOW){
+      delay(500);
+    }
+    if (interfaceToggle == 0) interfaceToggle = 1; 
+    else  if (interfaceToggle == 1) interfaceToggle = 0;
+  
+  }
+  
+}
 
 void loop() {
 
@@ -710,18 +667,8 @@ void loop() {
 
   CalculateREPositions();
 
-  //Calculate the vol for % defined in RE1 and RE2.
-  if (changeCode > 0) {
-    interfaceActive = interfaceDuration;
-
-    Serial.print(" Pos 1 = ");Serial.print(RE_1_Pos);
-    Serial.print(" Pos 2 = ");Serial.println(RE_2_Pos);
-    
-  }
-  if (interfaceActive > 0) {
+  if (interfaceToggle > 0) {
     drawInterface();
-
-    //interfaceActive --;
     
   } else {
 
@@ -803,14 +750,7 @@ void loop() {
       }
     } else {
       eyesFrameControl --;
-    }    
+    }
   }
-
-  // analog average value control
-  /*if (aVolAvgQueue.count() == aVolAvgNumSamples) {
-    aVolAvgSumatory  = aVolAvgSumatory-aVolAvgQueue.dequeue ();
-  }
-  aVolAvgQueue.enqueue (aVol);
-  aVolAvgSumatory = aVolAvgSumatory + aVol;*/
   
 }
