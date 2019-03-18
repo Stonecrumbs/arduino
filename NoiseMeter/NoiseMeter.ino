@@ -8,7 +8,7 @@
  *        low and medium is selected by rotary encoder one. Rotary encoder 
  *        two is selecting the boundary between medium and high.
  *  
- *  v0.1 Interface trough 8x8 bicolor matrix implementation
+ *  v0.1 Interface trough 8x8 bieyesColor matrix implementation
  *  
  *  v0.2 Implementng Eyes movement and effects
  *  
@@ -16,6 +16,12 @@
  *  
  *  v0.4 Interface controller is no longer active for a period of time. It will be toggled 
  *       in and out by using ER buttons.
+ *       
+ *  v0.5 Implementing eyesColor depending on the audio analog lecture
+ *       1 = Red
+ *       2 = Yellow
+ *       3 = Green
+ *       
  *  
  *  Considerations: Min analog voltage read is 0 and max is 1024.
  *  
@@ -108,6 +114,8 @@ int changeCode; /* This int will track what happened on each iteration
                 */
                 
 int interfaceToggle = 0; // 0 means interface off, 1 means on
+
+int eyesColor;
                           
 
 void setup() {
@@ -136,22 +144,12 @@ void setup() {
 
 void initEye(){
   matrix.clear();
-  matrix.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
+  matrix.drawBitmap(0, 0, init_bmp, 8, 8, eyesColor);
   matrix2.clear();
-  matrix2.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
+  matrix2.drawBitmap(0, 0, init_bmp, 8, 8, eyesColor);
   
   clearPupiles(pupilePosition);
 }
-
-void Print(){
-  
-    Serial.print(" RE_1_Percent: ");
-    Serial.print(RE_1_Percent);
-    Serial.print(" RE_2_Percent: ");
-    Serial.println(RE_2_Percent);
-    
-} //Print
-
 
 void CalculateREPositions(){
 
@@ -169,7 +167,6 @@ void CalculateREPositions(){
         changeCode = 2;
       }
     }
-    Print();
   }
 
   
@@ -187,7 +184,6 @@ void CalculateREPositions(){
         changeCode = 4;
       }
     }
-    Print();
   }
 
 
@@ -200,8 +196,6 @@ void CalculateREPositions(){
     if (changeCode == 3 || changeCode == 4){
       RE_1_Percent = RE_2_Percent-1;
     } 
-
-    //Print();
   }
 
 
@@ -215,311 +209,311 @@ void CalculateREPositions(){
 
 void zero(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX, 4, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX, 6, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX, 7, HIGH);
-    matrix.drawPixel(iniX+1, 7, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX, 4, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX, 7, eyesColor);
+    matrix.drawPixel(iniX+1, 7, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX, 4, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX, 7, HIGH);
-    matrix2.drawPixel(iniX+1, 7, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX, 4, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX, 7, eyesColor);
+    matrix2.drawPixel(iniX+1, 7, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }  
 }
 
 void one(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   } 
   if (mat == 2){
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   } 
 }
 
 void two(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX, 6, HIGH);
-    matrix.drawPixel(iniX, 7, HIGH);
-    matrix.drawPixel(iniX+1, 7, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX, 6, eyesColor);
+    matrix.drawPixel(iniX, 7, eyesColor);
+    matrix.drawPixel(iniX+1, 7, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }  
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX, 6, HIGH);
-    matrix2.drawPixel(iniX, 7, HIGH);
-    matrix2.drawPixel(iniX+1, 7, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX, 6, eyesColor);
+    matrix2.drawPixel(iniX, 7, eyesColor);
+    matrix2.drawPixel(iniX+1, 7, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }  
 }
 void three(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX, 7, HIGH);
-    matrix.drawPixel(iniX+1, 7, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX, 7, eyesColor);
+    matrix.drawPixel(iniX+1, 7, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX, 7, HIGH);
-    matrix2.drawPixel(iniX+1, 7, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX, 7, eyesColor);
+    matrix2.drawPixel(iniX+1, 7, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void four(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX, 4, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX, 4, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX, 4, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX, 4, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void five(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX, 7, HIGH);
-    matrix.drawPixel(iniX+1, 7, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX, 7, eyesColor);
+    matrix.drawPixel(iniX+1, 7, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX, 7, HIGH);
-    matrix2.drawPixel(iniX+1, 7, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX, 7, eyesColor);
+    matrix2.drawPixel(iniX+1, 7, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void six(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX, 6, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX, 7, HIGH);
-    matrix.drawPixel(iniX+1, 7, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX, 7, eyesColor);
+    matrix.drawPixel(iniX+1, 7, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX, 7, HIGH);
-    matrix2.drawPixel(iniX+1, 7, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX, 7, eyesColor);
+    matrix2.drawPixel(iniX+1, 7, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void seven(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void eight(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX, 4, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX, 6, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX, 7, HIGH);
-    matrix.drawPixel(iniX+1, 7, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX, 4, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX, 7, eyesColor);
+    matrix.drawPixel(iniX+1, 7, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX, 4, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX, 7, HIGH);
-    matrix2.drawPixel(iniX+1, 7, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX, 4, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX, 7, eyesColor);
+    matrix2.drawPixel(iniX+1, 7, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void nine(int iniX, int mat){
   if (mat == 1){
-    matrix.drawPixel(iniX, 3, HIGH);
-    matrix.drawPixel(iniX+1, 3, HIGH);
-    matrix.drawPixel(iniX+2, 3, HIGH);
-    matrix.drawPixel(iniX, 4, HIGH);
-    matrix.drawPixel(iniX+2, 4, HIGH);
-    matrix.drawPixel(iniX, 5, HIGH);
-    matrix.drawPixel(iniX+1, 5, HIGH);
-    matrix.drawPixel(iniX+2, 5, HIGH);
-    matrix.drawPixel(iniX+2, 6, HIGH);
-    matrix.drawPixel(iniX+2, 7, HIGH);
+    matrix.drawPixel(iniX, 3, eyesColor);
+    matrix.drawPixel(iniX+1, 3, eyesColor);
+    matrix.drawPixel(iniX+2, 3, eyesColor);
+    matrix.drawPixel(iniX, 4, eyesColor);
+    matrix.drawPixel(iniX+2, 4, eyesColor);
+    matrix.drawPixel(iniX, 5, eyesColor);
+    matrix.drawPixel(iniX+1, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 5, eyesColor);
+    matrix.drawPixel(iniX+2, 6, eyesColor);
+    matrix.drawPixel(iniX+2, 7, eyesColor);
   }    
   if (mat == 2){
-    matrix2.drawPixel(iniX, 3, HIGH);
-    matrix2.drawPixel(iniX+1, 3, HIGH);
-    matrix2.drawPixel(iniX+2, 3, HIGH);
-    matrix2.drawPixel(iniX, 4, HIGH);
-    matrix2.drawPixel(iniX+2, 4, HIGH);
-    matrix2.drawPixel(iniX, 5, HIGH);
-    matrix2.drawPixel(iniX+1, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 5, HIGH);
-    matrix2.drawPixel(iniX+2, 6, HIGH);
-    matrix2.drawPixel(iniX+2, 7, HIGH);
+    matrix2.drawPixel(iniX, 3, eyesColor);
+    matrix2.drawPixel(iniX+1, 3, eyesColor);
+    matrix2.drawPixel(iniX+2, 3, eyesColor);
+    matrix2.drawPixel(iniX, 4, eyesColor);
+    matrix2.drawPixel(iniX+2, 4, eyesColor);
+    matrix2.drawPixel(iniX, 5, eyesColor);
+    matrix2.drawPixel(iniX+1, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 5, eyesColor);
+    matrix2.drawPixel(iniX+2, 6, eyesColor);
+    matrix2.drawPixel(iniX+2, 7, eyesColor);
   }    
 }
 
 void drawBar(){
 
   // boundaries
-  int b1 = (int)((RE_1_Percent*16)/100);
-  int b2 = (int)((RE_2_Percent*16)/100);   
+  int b1 = (int)((RE_1_Percent*16.0)/100.0);
+  int b2 = (int)((RE_2_Percent*16.0)/100.0);   
   
   // Meter
-  int m1 = (int)((aVol*16)/1024);
+  int m1 = (int)((aVol*16.0)/1024.0);
   
   for (int i=0;i<8;i++){
     if (i<b1) {
-      matrix2.drawPixel(i, 0, LED_GREEN);
-      if (i<m1) matrix2.drawPixel(i, 1, LED_GREEN);  
+      matrix2.drawPixel(i, 0, 3);
+      if (i<m1) matrix2.drawPixel(i, 1, 3);  
     }
     else if (i>b2) {
-      matrix2.drawPixel(i, 0, LED_RED);
-      if (i<m1) matrix2.drawPixel(i, 1, LED_RED);  
+      matrix2.drawPixel(i, 0, 1);
+      if (i<m1) matrix2.drawPixel(i, 1, 1);  
     }
     else {
-      matrix2.drawPixel(i, 0, LED_YELLOW);
-      if (i<m1) matrix2.drawPixel(i, 1, LED_YELLOW);  
+      matrix2.drawPixel(i, 0, 2);
+      if (i<m1) matrix2.drawPixel(i, 1, 2);  
     }           
   }
   
   for (int i=8;i<16;i++){
     if (i<b1) {
-      matrix.drawPixel(i-8, 0, LED_GREEN);
-      if (i<m1) matrix.drawPixel(i-8, 1, LED_GREEN); 
+      matrix.drawPixel(i-8, 0, 3);
+      if (i<m1) matrix.drawPixel(i-8, 1, 3); 
     }
     else if (i>b2){
-      matrix.drawPixel(i-8, 0, LED_RED);
-      if (i<m1) matrix.drawPixel(i-8, 1, LED_RED);  
+      matrix.drawPixel(i-8, 0, 1);
+      if (i<m1) matrix.drawPixel(i-8, 1, 1);  
     }
     else {
-      matrix.drawPixel(i-8, 0, LED_YELLOW);   
-      if (i<m1) matrix.drawPixel(i-8, 1, LED_YELLOW);  
+      matrix.drawPixel(i-8, 0, 2);   
+      if (i<m1) matrix.drawPixel(i-8, 1, 2);  
     }
   }
   
@@ -527,7 +521,7 @@ void drawBar(){
 
 void drawNumbers(){
   //d1 first digit RE_1_Percent
-  int d1 = RE_1_Percent/10;
+  int d1 = RE_1_Percent/10.0;
   if      (d1 == 0)  zero(1,2);
   else if (d1 == 1)   one(1,2);
   else if (d1 == 2)   two(1,2);
@@ -539,7 +533,7 @@ void drawNumbers(){
   else if (d1 == 8) eight(1,2);
   else if (d1 == 9)  nine(1,2);
   //d2 second digit RE_1_Percent
-  int d2 = RE_1_Percent-(d1*10);
+  int d2 = RE_1_Percent-(d1*10.0);
   if      (d2 == 0)  zero(5,2);
   else if (d2 == 1)   one(5,2);
   else if (d2 == 2)   two(5,2);
@@ -552,7 +546,7 @@ void drawNumbers(){
   else if (d2 == 9)  nine(5,2);
 
   //d1 first digit RE_2_Percent
-  d1 = RE_2_Percent/10;
+  d1 = RE_2_Percent/10.0;
   if      (d1 == 0)  zero(1,1);
   else if (d1 == 1)   one(1,1);
   else if (d1 == 2)   two(1,1);
@@ -564,7 +558,7 @@ void drawNumbers(){
   else if (d1 == 8) eight(1,1);
   else if (d1 == 9)  nine(1,1);
   //d2 second digit RE_2_Percent
-  d2 = RE_2_Percent-(d1*10);
+  d2 = RE_2_Percent-(d1*10.0);
   if      (d2 == 0)  zero(5,1);
   else if (d2 == 1)   one(5,1);
   else if (d2 == 2)   two(5,1);
@@ -592,15 +586,15 @@ void drawInterface(){
 
 
 void paintPupiles(int pX){
-  matrix.drawPixel(pX, 3, LED_GREEN);
-  matrix.drawPixel(pX+1, 3, LED_GREEN);
-  matrix.drawPixel(pX, 4, LED_GREEN);
-  matrix.drawPixel(pX+1, 4, LED_GREEN);
+  matrix.drawPixel(pX, 3, eyesColor);
+  matrix.drawPixel(pX+1, 3, eyesColor);
+  matrix.drawPixel(pX, 4, eyesColor);
+  matrix.drawPixel(pX+1, 4, eyesColor);
   //matrix.writeDisplay();
-  matrix2.drawPixel(pX, 3, LED_GREEN);
-  matrix2.drawPixel(pX+1, 3, LED_GREEN);
-  matrix2.drawPixel(pX, 4, LED_GREEN);
-  matrix2.drawPixel(pX+1, 4, LED_GREEN);
+  matrix2.drawPixel(pX, 3, eyesColor);
+  matrix2.drawPixel(pX+1, 3, eyesColor);
+  matrix2.drawPixel(pX, 4, eyesColor);
+  matrix2.drawPixel(pX+1, 4, eyesColor);
   //matrix2.writeDisplay();
 }
 
@@ -643,11 +637,10 @@ void CheckButtonPressed(){
     // initialise boundaries;
     RE_1_Percent = 20; 
     RE_2_Percent = 80; 
-    Print();
     */
     
     while (digitalRead(ORE_1_SW) == LOW){
-      delay(500);
+      true;
     }
     if (interfaceToggle == 0) interfaceToggle = 1; 
     else  if (interfaceToggle == 1) interfaceToggle = 0;
@@ -656,12 +649,23 @@ void CheckButtonPressed(){
   
 }
 
+void checkColor(){
+  
+    // analog read percent
+  int aVol_Percent = (int)((aVol*100.0)/1024.0);
+
+  if (aVol_Percent<RE_1_Percent) eyesColor = 3; //Green
+  else if (aVol_Percent>RE_2_Percent) eyesColor = 1; //Red
+  else  eyesColor = 2; //Yellow
+}
+
 void loop() {
 
   changeCode = 0;
   
   //Read the audio analog voltage value 
   aVol = analogRead(analogPin);
+  checkColor();
 
   CheckButtonPressed();
 
@@ -679,7 +683,6 @@ void loop() {
       // Moving pupilles
       if ((random(0,60) == 1)&&!isPupileMoving){ // Calculate probability of moving puiles when resting.
         finalPupilePosition = random(1,6); // Final destination for the pupile.
-        //Serial.println(movePupileTo);
         isPupileMoving = true;
       } else if (isPupileMoving) {    
         if ( pupilePosition < finalPupilePosition ){
@@ -708,15 +711,15 @@ void loop() {
           isBlinking = false;
           matrix.clear();
           matrix2.clear();
-          matrix.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
-          matrix2.drawBitmap(0, 0, init_bmp, 8, 8, LED_GREEN);
+          matrix.drawBitmap(0, 0, init_bmp, 8, 8, eyesColor);
+          matrix2.drawBitmap(0, 0, init_bmp, 8, 8, eyesColor);
           clearPupiles(movePupileTo);
           
         } else if ((blinkIteration == 1) || (blinkIteration == 5)){
           matrix.clear();
           matrix2.clear();
-          matrix.drawBitmap(0, 0, blink_it1_bmp, 8, 8, LED_GREEN);
-          matrix2.drawBitmap(0, 0, blink_it1_bmp, 8, 8, LED_GREEN);
+          matrix.drawBitmap(0, 0, blink_it1_bmp, 8, 8, eyesColor);
+          matrix2.drawBitmap(0, 0, blink_it1_bmp, 8, 8, eyesColor);
           clearPupiles(movePupileTo);
           if (blinkIteration == 1){ 
             blinkIteration = 2;
@@ -727,8 +730,8 @@ void loop() {
         } else if ((blinkIteration == 2) || (blinkIteration == 4)){
           matrix.clear();
           matrix2.clear();
-          matrix.drawBitmap(0, 0, blink_it2_bmp, 8, 8, LED_GREEN);
-          matrix2.drawBitmap(0, 0, blink_it2_bmp, 8, 8, LED_GREEN);
+          matrix.drawBitmap(0, 0, blink_it2_bmp, 8, 8, eyesColor);
+          matrix2.drawBitmap(0, 0, blink_it2_bmp, 8, 8, eyesColor);
           clearPupiles(movePupileTo);
           if (blinkIteration == 2){ 
             blinkIteration = 3;
@@ -739,8 +742,8 @@ void loop() {
         } else if (blinkIteration == 3){
           matrix.clear();
           matrix2.clear();
-          matrix.drawBitmap(0, 0, blink_it3_bmp, 8, 8, LED_GREEN);
-          matrix2.drawBitmap(0, 0, blink_it3_bmp, 8, 8, LED_GREEN);
+          matrix.drawBitmap(0, 0, blink_it3_bmp, 8, 8, eyesColor);
+          matrix2.drawBitmap(0, 0, blink_it3_bmp, 8, 8, eyesColor);
           clearPupiles(movePupileTo);
           blinkIteration = 4;
         }
