@@ -8,10 +8,11 @@
  *        low and medium is selected by rotary encoder one. Rotary encoder 
  *        two is selecting the boundary between medium and high.
  *  
- *  
  *  v0.1 Interface trough 8x8 bicolor matrix implementation
  *  
- *  v0.2 implementng Eyes movement and effects
+ *  v0.2 Implementng Eyes movement and effects
+ *  
+ *  v0.3 Implementng Audiometer bar
  *  
  *  Considerations: Min analog voltage read is 0 and max is 1024.
  *  
@@ -93,7 +94,7 @@ int finalPupilePosition;
 boolean isBlinking = false;
 int blinkIteration = 0;
 
-int eyesFrame;
+int eyesFrameControl;
 
 
 int changeCode; /* This int will track what happened on each iteration 
@@ -104,10 +105,10 @@ int changeCode; /* This int will track what happened on each iteration
                    4- RE2 has been rotated counter clockwise.
                 */
 int interfaceActive = 0; /* Indicates the number of milliseconds the interface will be actve. 
-                                Once an action occured this variable is set to the munber of milliseconds 
-                                we want the interface to be active. And will decrease every 
-                                iteration until it reaches 0 and the eyes are shown up again. 
-                              */
+                            Once an action occured this variable is set to the munber of milliseconds 
+                            we want the interface to be active. And will decrease every 
+                            iteration until it reaches 0 and the eyes are shown up again. 
+                          */
 
 void setup() {
   pinMode (ORE_1_A, INPUT);
@@ -214,11 +215,14 @@ void CalculateREPositions(){
 
 
 void CheckButtonPressed(){
+  
   if (digitalRead(ORE_1_SW) == LOW){
+    
     // initialise boundaries;
     RE_1_Percent = 20; 
     RE_2_Percent = 80; 
     Print();
+    
   }
 }
 
@@ -496,19 +500,43 @@ void nine(int iniX, int mat){
 
 void drawBar(){
 
+  // boundaries
   int b1 = (int)((RE_1_Percent*16)/100);
   int b2 = (int)((RE_2_Percent*16)/100);   
-
+  
+  // Meter
+  int m1 = (int)((aVol*16)/1024);
+  
   for (int i=0;i<8;i++){
-    if (i<b1) matrix2.drawPixel(i, 0, LED_GREEN);
-    else if (i>b2) matrix2.drawPixel(i, 0, LED_RED);
-         else matrix2.drawPixel(i, 0, LED_YELLOW);    
+    if (i<b1) {
+      matrix2.drawPixel(i, 0, LED_GREEN);
+      if (i<m1) matrix2.drawPixel(i, 1, LED_GREEN);  
+    }
+    else if (i>b2) {
+      matrix2.drawPixel(i, 0, LED_RED);
+      if (i<m1) matrix2.drawPixel(i, 1, LED_RED);  
+    }
+    else {
+      matrix2.drawPixel(i, 0, LED_YELLOW);
+      if (i<m1) matrix2.drawPixel(i, 1, LED_YELLOW);  
+    }           
   }
+  
   for (int i=8;i<16;i++){
-    if (i<b1) matrix.drawPixel(i-8, 0, LED_GREEN);
-    else if (i>b2) matrix.drawPixel(i-8, 0, LED_RED);
-         else matrix.drawPixel(i-8, 0, LED_YELLOW);    
+    if (i<b1) {
+      matrix.drawPixel(i-8, 0, LED_GREEN);
+      if (i<m1) matrix.drawPixel(i-8, 1, LED_GREEN); 
+    }
+    else if (i>b2){
+      matrix.drawPixel(i-8, 0, LED_RED);
+      if (i<m1) matrix.drawPixel(i-8, 1, LED_RED);  
+    }
+    else {
+      matrix.drawPixel(i-8, 0, LED_YELLOW);   
+      if (i<m1) matrix.drawPixel(i-8, 1, LED_YELLOW);  
+    }
   }
+  
 }
 
 void drawNumbers(){
@@ -569,6 +597,7 @@ void drawInterface(){
   matrix2.clear();
   
   drawBar();
+  //drawMeter();
   drawNumbers();
   
   matrix.writeDisplay();   
@@ -644,13 +673,13 @@ void loop() {
   if (interfaceActive > 0) {
     drawInterface();
 
-    interfaceActive --;
+    //interfaceActive --;
     
   } else {
 
-    if (eyesFrame == 0){
-      
-      eyesFrame = eyesVelocity;
+    if (eyesFrameControl == 0){
+      initEye();
+      eyesFrameControl = eyesVelocity;
       
       // Moving pupilles
       if ((random(0,60) == 1)&&!isPupileMoving){ // Calculate probability of moving puiles when resting.
@@ -725,11 +754,8 @@ void loop() {
       matrix2.writeDisplay();   
       }
     } else {
-      eyesFrame --;
+      eyesFrameControl --;
     }
   }
-
-
-  //delay(40); // 1000ms/24 => aprox40 ms/frame
   
 }
